@@ -18,7 +18,7 @@ session_start();
         <?php else: ?>
             <h1>Welcome to our website!</h1>
             <div class="links">
-            <a href="login.php">Login</a>
+            <a href="login.php" style="margin-right: 50px;">Login</a>
             <a href="register.php">Register</a>
             </div>
         <?php endif; ?>

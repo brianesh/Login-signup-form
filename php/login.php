@@ -29,7 +29,7 @@ include("functions.php");
                 <button type="submit">Login</button>
             </div>
             <div class="links">
-                <a href="register.php">Don't have an account?</a>
+                <a href="register.php" style="margin-right: 30px;">Don't have an account?</a>
                 <a href="forgot.php">Forgot password?</a>
             </div>
         </form>

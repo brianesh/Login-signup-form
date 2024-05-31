@@ -1,11 +1,16 @@
 <?php
-session_start(); 
-     
+session_start();
+
 include("connection.php");
 include("functions.php");
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Check if the form was submitted using POST method
-if($_SERVER['REQUEST_METHOD'] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
     // Check the action parameter to determine the form submission type
     $action = isset($_POST['action']) ? $_POST['action'] : '';
 
@@ -40,27 +45,31 @@ function handleRegistration($conn) {
     $password = $_POST['password'];
     $email = $_POST['email'];
     $mobile_number = $_POST['mobile_number'];
-    $security_question = $_POST['security_question']; // Assuming your select element has name="question"
+    $security_question = $_POST['security_question'];
     $security_answer = $_POST['security_answer'];
     
-    // Validate form data (you can add more validation if needed)
-    if(!empty($surname) && !empty($other_names) && !empty($username) && !empty($password) && !empty($email) && !empty($mobile_number) && !empty($security_question) && !empty($security_answer)) {
+    // Validate form data
+    if (!empty($surname) && !empty($other_names) && !empty($username) && !empty($password) && !empty($email) && !empty($mobile_number) && !empty($security_question) && !empty($security_answer)) {
         // Hash the password before storing it in the database
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
-        // SQL query to insert data into the users table
-        $query = "INSERT INTO users (surname, other_names, username, password, email, mobile_number, security_question, security_answer) VALUES ('$surname', '$other_names', '$username', '$hashed_password', '$email', '$mobile_number', '$security_question', '$security_answer')";
+        // Prepare an SQL statement to insert data into the users table
+        if ($stmt = $conn->prepare("INSERT INTO user (surname, other_names, username, password, email, mobile_number, security_question, security_answer) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+            $stmt->bind_param("ssssssss", $surname, $other_names, $username, $hashed_password, $email, $mobile_number, $security_question, $security_answer);
         
-        // Execute the query
-        if(mysqli_query($conn, $query)) {
-            // Redirect to login page after successful registration
-            header("Location: login.php");
-            exit(); // Stop further execution
+            // Execute the query
+            if ($stmt->execute()) {
+                // Redirect to login page after successful registration
+                header("Location: login.php");
+                exit();
+            } else {
+                echo "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+            }
         } else {
-            echo "Error: " . mysqli_error($conn); // Print any errors if query execution fails
+            echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
         }
     } else {
-        echo "Please fill all the required fields."; // If any field is empty, show an error message
+        echo "Please fill all the required fields.";
     }
 }
 
@@ -71,29 +80,33 @@ function handleLogin($conn) {
     $password = $_POST['password'];
     
     // Validate form data
-    if(!empty($username) && !empty($password)) {
-        // SQL query to fetch user data based on username
-        $query = "SELECT * FROM users WHERE username='$username'";
-        $result = mysqli_query($conn, $query);
+    if (!empty($username) && !empty($password)) {
+        // Prepare an SQL statement to fetch user data based on username
+        if ($stmt = $conn->prepare("SELECT * FROM user WHERE username = ?")) {
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if(mysqli_num_rows($result) == 1) {
-            // User found, verify password
-            $user = mysqli_fetch_assoc($result);
-            if(password_verify($password, $user['password'])) {
-                // Password is correct, set session variables and redirect to dashboard or user profile page
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['username'] = $user['username'];
-                // Redirect to dashboard or user profile page
-                header("Location: dashboard.php");
-                exit(); // Stop further execution
+            if ($result->num_rows == 1) {
+                // User found, verify password
+                $user = $result->fetch_assoc();
+                if (password_verify($password, $user['password'])) {
+                    // Password is correct, set session variables and redirect to dashboard
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['username'] = $user['username'];
+                    header("Location: dashboard.php");
+                    exit();
+                } else {
+                    echo "Invalid username or password.";
+                }
             } else {
-                echo "Invalid username or password."; // Password doesn't match
+                echo "Invalid username or password.";
             }
         } else {
-            echo "Invalid username or password."; // User not found
+            echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
         }
     } else {
-        echo "Please fill all the required fields."; // If any field is empty, show an error message
+        echo "Please fill all the required fields.";
     }
 }
 
@@ -106,24 +119,33 @@ function handlePasswordReset($conn) {
     $new_password = $_POST['new_password'];
     
     // Validate form data
-    if(!empty($username) && !empty($security_question) && !empty($security_answer) && !empty($new_password)) {
-        // SQL query to fetch user data based on username and security question
-        $query = "SELECT * FROM users WHERE username='$username' AND security_question='$security_question' AND security_answer='$security_answer'";
-        $result = mysqli_query($conn, $query);
+    if (!empty($username) && !empty($security_question) && !empty($security_answer) && !empty($new_password)) {
+        // Prepare an SQL statement to fetch user data based on username and security question
+        if ($stmt = $conn->prepare("SELECT * FROM user WHERE username = ? AND security_question = ? AND security_answer = ?")) {
+            $stmt->bind_param("sss", $username, $security_question, $security_answer);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        if(mysqli_num_rows($result) == 1) {
-            // User found, update password
-            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $update_query = "UPDATE users SET password='$hashed_password' WHERE username='$username'";
-            if(mysqli_query($conn, $update_query)) {
-                echo "Password reset successful. You can now <a href='login.php'>login</a> with your new password.";
+            if ($result->num_rows == 1) {
+                // User found, update password
+                $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                if ($update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE username = ?")) {
+                    $update_stmt->bind_param("ss", $hashed_password, $username);
+                    if ($update_stmt->execute()) {
+                        echo "Password reset successful. You can now <a href='login.php'>login</a> with your new password.";
+                    } else {
+                        echo "Execute failed: (" . $update_stmt->errno . ") " . $update_stmt->error;
+                    }
+                } else {
+                    echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
+                }
             } else {
-                echo "Error resetting password: " . mysqli_error($conn);
+                echo "Invalid username or security question/answer combination.";
             }
         } else {
-            echo "Invalid username or security question/answer combination.";
+            echo "Prepare failed: (" . $conn->errno . ") " . $conn->error;
         }
     } else {
-        echo "Please fill all the required fields."; // If any field is empty, show an error message
+        echo "Please fill all the required fields.";
     }
 }
