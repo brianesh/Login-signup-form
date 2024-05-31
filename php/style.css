@@ -1,0 +1,126 @@
+* {box-sizing: border-box}
+.container{
+    display: flex;
+      flex-direction: column;
+    align-items: center;
+    border-radius: 100px;
+    width: 500px;
+    height: 450px;
+    background-color: #cddbe2;
+    padding: 20px;
+    padding-top: 150px;
+    margin-left: 450px;
+    links{
+        margin-left: 50px;
+        padding: 10px;
+        margin: 15px;
+        font-weight: bold;
+      }
+}
+.container1{
+  form{
+      display: flex;
+      flex-direction: column;
+    align-items: center;
+    border-radius: 100px;
+    width: 500px;
+    height: 450px;
+    background-color: #cddbe2;
+    padding: 20px;
+    margin-left: 450px;
+    
+  }
+  
+  input[type=text], input[type=password], input[type=tel],input[type=email]{
+      width: 60%;
+      padding: 10px;
+      margin: 15px;
+      display: block;
+      border: none;
+      background: #b8a3a3;
+  }
+  button {
+      background-color: #200a53;
+      color: white;
+      padding: 14px;
+      margin: 8px;
+      width: 100%;
+    }
+    links{
+      margin-left: 50px;
+      padding: 10px;
+    }
+  }
+  .container2{
+      form{
+        align-items: center;
+        border-radius: 100px;
+        width: 700px;
+        height: 600px;
+        background-color: #cddbe2;
+        padding: 20px;
+        margin-left: 150px;
+        
+      }
+      input[type=text], input[type=password], input[type=tel],input[type=email]{
+          width: 30%;
+          padding: 10px;
+          margin: 10px;
+          display: block-inline;
+          border: none;
+          background: #b8a3a3;
+      }
+      p , select{
+        display:inline-block;
+      }
+      button {
+          background-color: #200a53;
+          color: white;
+          padding: 14px;
+          margin: 8px;
+          width: 100%;
+        }
+        links{
+          margin-left: 50px;
+        margin: 8px;
+          padding: 10px;
+        }
+      }
+      .container3{
+          form{
+              display: flex;
+              flex-direction: column;
+            align-items: center;
+            border-radius: 100px;
+            width: 500px;
+            height: 600px;
+            background-color: #cddbe2;
+            padding: 20px;
+            margin-left: 450px;
+            
+          }
+          label{
+              display: block;
+              padding: 10px;
+  
+          }
+          input[type=text], input[type=password], input[type=tel],input[type=email]{
+              width: 60%;
+              padding: 10px;
+              margin: 15px;
+              display: block;
+              border: none;
+              background: #b8a3a3;
+          }
+          button {
+              background-color: #200a53;
+              color: white;
+              padding: 14px;
+              margin: 8px;
+              width: 100%;
+            }
+            links{
+              margin-left: 50px;
+              padding: 10px;
+            }
+          }
