@@ -12,7 +12,6 @@ include("functions.php");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="js/validation.js" defer></script>
 </head>
 <body>
     <div class="container1">

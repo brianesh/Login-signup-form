@@ -44,5 +44,23 @@ $username = $_SESSION['username'];
 </head>
 <body onload="displayGreeting('<?php echo htmlspecialchars($username); ?>')">
     <h1 id="greeting"></h1>
+    
+    <form action="logout.php" method="post">
+    <input type="hidden" name="action" value="logout">
+    <button type="submit">Logout</button>
+</form>
+
+<form action="delete_account.php" method="post">
+    <!-- This hidden field indicates the action to be performed -->
+    <input type="hidden" name="action" value="delete_account">
+    
+    <!-- Include other form fields or content here -->
+    <label for="confirmation">Are you sure you want to delete your account?</label>
+    <input type="checkbox" id="confirmation" name="confirmation" required>
+    <label for="confirmation">Yes, I'm sure</label>
+    
+    <button type="submit">Delete Account</button>
+</form>
+
 </body>
 </html>
